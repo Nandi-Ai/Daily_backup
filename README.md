@@ -2,8 +2,12 @@
 
 This bash script allows you to create backups of a specified directory using the tar command. The script creates a compressed tarball (.tar.gz) of the source directory and saves it in a designated backup directory with a timestamp in the file name.
 
-## Usage
+## 📚 Table of Contents
+1. [Usage](#usage)
+2. [Automating Daily Backups](#Automating-Daily-Backups)
 
+
+## <a name="usage"></a>⚡Usage
 To use the script, follow these steps:
 
 1. Ensure that the script file has execute permissions. If not, run the following command:  chmod +x daily_backup.sh
@@ -17,8 +21,7 @@ To use the script, follow these steps:
 5. The script will also check the exit status of the backup creation. If the backup is successful, it will display the message "Backup of [source directory] completed successfully!" Otherwise, it will display "Backup of [source directory] failed!"
 
 
-## Automating Daily Backups
-
+## <a name="Automating-Daily-Backups"></a>Automating Daily Backups
 To schedule daily backups using the script, you can utilize the cron utility. The provided script includes a line that adds the backup command to the crontab.
 
 The script will be scheduled to run at midnight (0:00) every day with the specified source directory as the argument. If you wish to modify the schedule, adjust the cron expression in the script.
