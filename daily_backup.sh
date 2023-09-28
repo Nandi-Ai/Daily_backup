@@ -21,6 +21,26 @@ else
 echo "Backup of $source_dir failed!"
 fi
 
+old_files=$(find "$backup_dir" -type f -mtime +14)
+
+if [ -n "$old_files" ]; then
+    echo "The following files have not been modified in the last 14 days:"
+    echo "$old_files"
+
+    echo "Do you want to delete these files? (y/n)"
+    read -r response
+    if [ "$response" = "y" ]; then
+        echo "Deleting files..."
+        echo "$old_files" | xargs rm -f
+        echo "Files deleted."
+    else
+        echo "No files were deleted."
+    fi
+
+else
+    echo "There are no files in $backup_dir that haven't been modified in the last 14 days."
+fi
+
 (crontab -l ; echo "0 0 * * * /home/yoni-golan/daily_backup.sh $source_dir") | crontab -
 
 
