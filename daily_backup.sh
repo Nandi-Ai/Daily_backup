@@ -1,55 +1,52 @@
 #!/bin/bash
+###############################################################################
 
-#Define variables
-backup_dir="/home/yoni-golan/Desktop/backups"
-date_time=$(date +"%Y%m%d-%H%M%S")
-backup_file="$backup_dir/backup_$date_time.tar.gz"
-source_dir=$1
 
-#Create the backup directory if it doesn't exist
-if [ ! -d "$backup_dir" ]; then
-mkdir -p "$backup_dir"
+# define variables
+BACKUP_DIR="$HOME/backup"
+DATE_TIME=$(date +"%Y%m%d-%H%M%S")
+BACKUP_FILE="$BACKUP_DIR/backup_$DATE_TIME.tar.gz"
+SOURCE=$1
+
+
+# functions
+# ---------
+# Function to remove old backups
+remove_old_backups() {
+    find "$BACKUP_DIR" -type f -name "backup_*.tar.gz" -mtime +7 -exec rm {} \;
+}
+
+
+# load environments and parameter
+# -------------------------------
+# Check if the script is run with the -r parameter to remove old backups regardless of time of day
+if [ "$1" = "-r" ]; then
+  remove_old_backups
+  exit 0
 fi
 
-#Create the backup
-tar -czf "$backup_file" "$source_dir"
+# Check if source directory argument is provided
+if [ -z "$SOURCE" ]; then
+    echo "Usage: $0 <source_directory>"
+    exit 1
+fi
 
-#Check if the backup was successful
+# Create the backup directory if it doesn't exist
+if [ ! -d "$BACKUP_DIR" ]; then
+    mkdir -p "$BACKUP_DIR"
+    echo "Directory backup was created"
+else
+    echo "Directory exists"
+fi
+
+# Create the backup
+tar -czf "$BACKUP_FILE" "$SOURCE"
+
+# Check if the backup was successful
 if [ $? -eq 0 ]; then
-echo "Backup of $source_dir completed successfully!"
+    echo "Backup completed successfully: $BACKUP_FILE"
 else
-echo "Backup of $source_dir failed!"
+    echo "Backup failed"
 fi
 
-old_files=$(find "$backup_dir" -type f -mtime +14)
-
-if [ -n "$old_files" ]; then
-    echo "The following files have not been modified in the last 14 days:"
-    echo "$old_files"
-
-    echo "Do you want to delete these files? (y/n)"
-    read -r response
-    if [ "$response" = "y" ]; then
-        echo "Deleting files..."
-        echo "$old_files" | xargs rm -f
-        echo "Files deleted."
-    else
-        echo "No files were deleted."
-    fi
-
-else
-    echo "There are no files in $backup_dir that haven't been modified in the last 14 days."
-fi
-
-(crontab -l ; echo "0 0 * * * /home/yoni-golan/daily_backup.sh $source_dir") | crontab -
-
-
-# * * * * * command_to_run
-# - - - - -
-# | | | | |
-# | | | | ----- Day of the week (0 - 6) (Sunday = 0 or 7)
-# | | | ------- Month (1 - 12)
-# | | --------- Day of the month (1 - 31)
-# | ----------- Hour (0 - 23)
-# ------------- Minute (0 - 59)
 
